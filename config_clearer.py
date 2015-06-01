@@ -10,9 +10,9 @@ import configparser, csv
 from fabric.api import env, execute, task, parallel, local, sudo, run, put
 
 @task
-def clear_files(VM_list, sudo=False):
+def clear_files(VM_list, use_sudo=False):
     for vm in VM_list:
-        if sudo:
+        if use_sudo:
             cmd = str('sudo rm -rf /root/response_time.csv.%s' % vm)
             local(cmd)
             cmd = str('sudo rm -rf /root/failures.csv.%s' % vm)
@@ -25,8 +25,8 @@ def clear_files(VM_list, sudo=False):
 
 @task
 @parallel
-def clear_file(remote_location, sudo=False):
-    if sudo:
+def clear_file(remote_location, use_sudo=False):
+    if use_sudo:
         sudo('rm -f %s' % remote_location)
     else:
         run('rm -f %s' % remote_location)
@@ -34,13 +34,13 @@ def clear_file(remote_location, sudo=False):
 
 @task
 @parallel
-def upload_file(remote_location, local_location, sudo=False):
-    put(remote_path=remote_location, local_path=local_location, use_sudo=sudo)
+def upload_file(remote_location, local_location, use_sudo=False):
+    put(remote_path=remote_location, local_path=local_location, use_sudo=use_sudo)
 
 @task
 @parallel
-def run_python_program(program=None, sudo=False):
-    if sudo:
+def run_python_program(program=None, use_sudo=False):
+    if use_sudo:
         sudo('/usr/bin/python %s' % program)
     else:
         run('/usr/bin/python %s' % program)
@@ -93,11 +93,11 @@ if __name__ == "__main__":
 #    execute(pip_install, 'cuisine')
     
 #    execute(upload_file,'/etc/host_ips.csv','/etc/host_ips.csv',sudo=True)
-    execute(clear_files, vm_list, sudo=True)    
-    execute(clear_file, '/root/failures.csv', sudo=True)
-    execute(clear_file, '/root/response_time.csv', sudo=True)    
+    execute(clear_files, vm_list, use_sudo=True)    
+    execute(clear_file, '/root/failures.csv', use_sudo=True)
+    execute(clear_file, '/root/response_time.csv', use_sudo=True)    
     execute(upload_file, '/root/failures.csv',
-            '/root/failures.csv', sudo=True)
+            '/root/failures.csv', use_sudo=True)
     execute(upload_file, '/root/response_time.csv',
-            '/root/response_time.csv', sudo=True)
+            '/root/response_time.csv', use_sudo=True)
 #    execute(run_python_program,program='/root/test_program.py')
