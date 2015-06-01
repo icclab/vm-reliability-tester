@@ -19,8 +19,8 @@ def upload_file(remote_location, local_location, sudo=False):
 def collect_data_files(vm_list):
     i = 1
     for vm in vm_list:
-        get('/home/ubuntu/failures.csv.'+vm,'failures_'+str(i)+'.csv')
-        get('/home/ubuntu/response_time.csv.'+vm,'response_time_'+str(i)+'.csv')
+        get('/root/failures.csv.'+vm,'failures_'+str(i)+'.csv')
+        get('/root/response_time.csv.'+vm,'response_time_'+str(i)+'.csv')
         i += 1
 
 @task
@@ -57,8 +57,8 @@ def data_collection():
     env.password = ssh_password
     env.key_filename = ssh_key_filename
     
-#    execute(upload_file,'/home/ubuntu/measurements_downloader.py','measurements_downloader.py',sudo=True) 
-    execute(run_python_program, program='/home/ubuntu/measurements_downloader.py')
+#    execute(upload_file,'/root/measurements_downloader.py','measurements_downloader.py',sudo=True) 
+    execute(run_python_program, program='/root/measurements_downloader.py')
     
     vm_list = read_hosts_file('host_ips.csv')
     
@@ -86,8 +86,8 @@ if __name__ == "__main__":
     env.password = ssh_password
     env.key_filename = ssh_key_filename
     
-#    execute(upload_file,'/home/ubuntu/measurements_downloader.py','measurements_downloader.py',sudo=True) 
-    execute(run_python_program, program='/home/ubuntu/measurements_downloader.py')
+#    execute(upload_file,'/root/measurements_downloader.py','measurements_downloader.py',sudo=True) 
+    execute(run_python_program, program='/root/measurements_downloader.py')
     
     vm_list = read_hosts_file('host_ips.csv')
     

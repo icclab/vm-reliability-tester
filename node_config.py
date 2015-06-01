@@ -7,24 +7,24 @@ Created on Mon Mar 02 08:59:22 2015
 
 import configparser, csv
 
-from fabric.api import env, execute, task, parallel
+from fabric.api import env, execute, task, parallel, sudo
 import cuisine
 
 @task
-@parallel
 def update(package=None):
-    """
-    Fabric task to update all packages on a VM.
-    """
-    cuisine.package_update(package)
+    if package:
+        cuisine.package_update(package)
+    else:
+        sudo('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" update')
     
 @task
-@parallel
 def upgrade(package=None):
-    """
-    Fabric task to upgrade all packages on a VM.
-    """
-    cuisine.package_upgrade(package)
+    if package:
+        cmd = str('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" upgrade %s' % package)
+        sudo(cmd)
+    else:
+        sudo('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" upgrade')
+
 
 @task
 @parallel
@@ -32,8 +32,8 @@ def install(package):
     """
     Fabric task to install a package on a VM.
     """
-    cuisine.package_install(package)
-    cuisine.package_ensure(package)
+    cmd = str('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install %s' % package)
+    sudo(cmd)
     
 @task
 @parallel
@@ -41,9 +41,10 @@ def pip_install(package):
     """
     Fabric task to install a package via pip on a VM.
     """
-    cuisine.package_ensure('python-pip')
+    cmd = str('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" install python-pip')
+    sudo(cmd)
     command = str('pip install %s' % package)
-    cuisine.sudo(command)
+    sudo(command)
 
 @task
 @parallel
@@ -125,9 +126,9 @@ if __name__ == "__main__":
 #    execute(install, 'gcc')
     execute(upload_file, '/etc/host_ips.csv',
             '/etc/host_ips.csv', sudo=True)
-    execute(upload_file, '/home/ubuntu/test_program.py',
-            '/home/ubuntu/test_program.py', sudo=True)
-    execute(upload_file, '/home/ubuntu/failures.csv',
-            '/home/ubuntu/failures.csv', sudo=True)    
-    execute(upload_file, '/home/ubuntu/response_time.csv',
-            '/home/ubuntu/response_time.csv', sudo=True)
+    execute(upload_file, '/root/test_program.py',
+            '/root/test_program.py', sudo=True)
+    execute(upload_file, '/root/failures.csv',
+            '/root/failures.csv', sudo=True)    
+    execute(upload_file, '/root/response_time.csv',
+            '/root/response_time.csv', sudo=True)

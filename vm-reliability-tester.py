@@ -12,7 +12,7 @@ import model_fitter, model_validator
 if __name__ == "__main__":
     test_cleanup.clean()
     test_setup.setup()
-    for i in range(50):
+    for i in range(10):
         test_executor.run()
         test_measurer.data_collection()
         measurements_consolidator.set_data_point()
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     model_fitter.fit_models()
     test_cleanup.clean()
     test_setup.setup()
-    for i in range(50):
+    for i in range(10):
         test_executor.run()
         test_measurer.data_collection()
         measurements_consolidator.set_data_point()

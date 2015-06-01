@@ -44,8 +44,8 @@ def run():
     env.key_filename = ssh_key_filename
     env.connection_attempts = 5
     
-#    execute(upload_file,'/home/ubuntu/test_runner.py','test_runner.py',sudo=True) 
-    execute(run_python_program, program='/home/ubuntu/test_runner.py')
+#    execute(upload_file,'/root/test_runner.py','test_runner.py',sudo=True) 
+    execute(run_python_program, program='/root/test_runner.py')
 
 if __name__ == "__main__":       
     execfile('openrc.py')
@@ -68,5 +68,5 @@ if __name__ == "__main__":
     env.key_filename = ssh_key_filename
     env.connection_attempts = 5
     
-#    execute(upload_file,'/home/ubuntu/test_runner.py','test_runner.py',sudo=True) 
-    execute(run_python_program, program='/home/ubuntu/test_runner.py')
+#    execute(upload_file,'/root/test_runner.py','test_runner.py',sudo=True) 
+    execute(run_python_program, program='/root/test_runner.py')

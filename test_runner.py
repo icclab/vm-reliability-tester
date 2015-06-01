@@ -51,5 +51,5 @@ if __name__ == "__main__":
     env.key_filename = ssh_key_filename
     env.connection_attempts = 5
     
-    [execute(run_python_program,program='/home/ubuntu/test_program.py',param=str(i)) 
+    [execute(run_python_program,program='/root/test_program.py',param=str(i)) 
         for i in range(int(test_start), int(test_end)+1)] 

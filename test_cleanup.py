@@ -62,7 +62,7 @@ def run():
     env.connection_attempts = 5
 
     execute(run_python_program,
-            program='/home/ubuntu/config_clearer.py')
+            program='/root/config_clearer.py')
 
 if __name__ == "__main__":
     run()

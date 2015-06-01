@@ -10,16 +10,22 @@ from novaclient import client as noclient
 import configparser, time, os, copy, csv
 import vm_control
 
-from fabric.api import env, execute, task
+from fabric.api import env, execute, task, sudo
 import cuisine
 
 @task
 def update(package=None):
-    cuisine.package_update(package)
+    if package:
+        cuisine.package_update(package)
+    else:
+        sudo('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" update')
     
 @task
 def upgrade(package=None):
-    cuisine.package_upgrade(package)
+    if package:
+        cuisine.package_upgrade(package)
+    else:
+        sudo('apt-get -y --allow-unauthenticated --force-yes -o DPkg::Options::="--force-overwrite" -o DPkg::Options::="--force-confdef" upgrade')
 
 @task
 def install(package):
@@ -117,18 +123,18 @@ def setup():
     write_hosts_file(host_ip_list)
     test = read_hosts_file('host_ips.csv')
     execute(upload_file,'/etc/host_ips.csv','host_ips.csv',sudo=True)
-    execute(upload_file,'/home/ubuntu/.ssh/id_rsa','id_rsa',sudo=True)
-    execute(upload_file,'/home/ubuntu/.ssh/id_rsa.pub','id_rsa.pub',sudo=True)
-    execute(chmod_file,'0600','/home/ubuntu/.ssh/id_rsa')
-    execute(upload_file,'/home/ubuntu/config.ini','remote_config.ini',sudo=True)
-    execute(upload_file,'/home/ubuntu/node_config.py','node_config.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/test_program.py','test_program.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/failures.csv','failures.csv',sudo=True)
-    execute(upload_file,'/home/ubuntu/response_time.csv','response_time.csv',sudo=True)    
-    execute(run_python_program,program='/home/ubuntu/node_config.py')
-    execute(upload_file,'/home/ubuntu/test_runner.py','test_runner.py',sudo=True) 
-    execute(upload_file,'/home/ubuntu/measurements_downloader.py','measurements_downloader.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/config_clearer.py','config_clearer.py',sudo=True)
+    execute(upload_file,'/root/.ssh/id_rsa','id_rsa',sudo=True)
+    execute(upload_file,'/root/.ssh/id_rsa.pub','id_rsa.pub',sudo=True)
+    execute(chmod_file,'0600','/root/.ssh/id_rsa')
+    execute(upload_file,'/root/config.ini','remote_config.ini',sudo=True)
+    execute(upload_file,'/root/node_config.py','node_config.py',sudo=True)
+    execute(upload_file,'/root/test_program.py','test_program.py',sudo=True)
+    execute(upload_file,'/root/failures.csv','failures.csv',sudo=True)
+    execute(upload_file,'/root/response_time.csv','response_time.csv',sudo=True)    
+    execute(run_python_program,program='/root/node_config.py')
+    execute(upload_file,'/root/test_runner.py','test_runner.py',sudo=True) 
+    execute(upload_file,'/root/measurements_downloader.py','measurements_downloader.py',sudo=True)
+    execute(upload_file,'/root/config_clearer.py','config_clearer.py',sudo=True)
 
 if __name__ == "__main__":       
     execfile('openrc.py')
@@ -182,15 +188,15 @@ if __name__ == "__main__":
     write_hosts_file(host_ip_list)
     test = read_hosts_file('host_ips.csv')
     execute(upload_file,'/etc/host_ips.csv','host_ips.csv',sudo=True)
-    execute(upload_file,'/home/ubuntu/.ssh/id_rsa','id_rsa',sudo=True)
-    execute(upload_file,'/home/ubuntu/.ssh/id_rsa.pub','id_rsa.pub',sudo=True)
-    execute(chmod_file,'0600','/home/ubuntu/.ssh/id_rsa')
-    execute(upload_file,'/home/ubuntu/config.ini','remote_config.ini',sudo=True)
-    execute(upload_file,'/home/ubuntu/node_config.py','node_config.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/test_program.py','test_program.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/failures.csv','failures.csv',sudo=True)
-    execute(upload_file,'/home/ubuntu/response_time.csv','response_time.csv',sudo=True)    
-    execute(run_python_program,program='/home/ubuntu/node_config.py')
-    execute(upload_file,'/home/ubuntu/test_runner.py','test_runner.py',sudo=True) 
-    execute(upload_file,'/home/ubuntu/measurements_downloader.py','measurements_downloader.py',sudo=True)
-    execute(upload_file,'/home/ubuntu/config_clearer.py','config_clearer.py',sudo=True)
+    execute(upload_file,'/root/.ssh/id_rsa','id_rsa',sudo=True)
+    execute(upload_file,'/root/.ssh/id_rsa.pub','id_rsa.pub',sudo=True)
+    execute(chmod_file,'0600','/root/.ssh/id_rsa')
+    execute(upload_file,'/root/config.ini','remote_config.ini',sudo=True)
+    execute(upload_file,'/root/node_config.py','node_config.py',sudo=True)
+    execute(upload_file,'/root/test_program.py','test_program.py',sudo=True)
+    execute(upload_file,'/root/failures.csv','failures.csv',sudo=True)
+    execute(upload_file,'/root/response_time.csv','response_time.csv',sudo=True)    
+    execute(run_python_program,program='/root/node_config.py')
+    execute(upload_file,'/root/test_runner.py','test_runner.py',sudo=True) 
+    execute(upload_file,'/root/measurements_downloader.py','measurements_downloader.py',sudo=True)
+    execute(upload_file,'/root/config_clearer.py','config_clearer.py',sudo=True)
