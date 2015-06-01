@@ -26,16 +26,15 @@ class VM_Control(object):
     def __init__(self):
         execfile('openrc.py')
         self.cred = self.get_nova_creds()
-        print self.cred
         self.KEYSTONE_CONN = self.get_keystone_client(self.cred)
         self.NOVA_CONN = self.get_nova_client(self.cred)
         config = configparser.ConfigParser()
         config.read('config.ini')
-        print(config.sections()) 
         vm_credentials = dict(config['SSH_CREDENTIALS'])
         ssh_public_key_filename = str(vm_credentials['ssh.public_key_filename'])
+        ssh_public_key_filename = ssh_public_key_filename.replace('~','/root')        
         self.pk = self.ensure_public_key(self.NOVA_CONN,
-                                         ssh_public_key_filename);                                           print self.pk    
+                                         ssh_public_key_filename)   
         self.sec_group = self.ensure_security_group(self.NOVA_CONN)
      
     
@@ -50,6 +49,7 @@ class VM_Control(object):
         config.read('config.ini')
         vm_credentials = dict(config['SSH_CREDENTIALS'])
         ssh_public_key_filename = str(vm_credentials['ssh.public_key_filename'])
+        ssh_public_key_filename = ssh_public_key_filename.replace('~','/root')
         cls.__instance.pk = cls.__instance.ensure_public_key(cls.__instance.NOVA_CONN,
                                          ssh_public_key_filename)
         cls.__instance.sec_group = cls.__instance.ensure_security_group(cls.__instance.NOVA_CONN)
@@ -72,7 +72,6 @@ class VM_Control(object):
         temp.pop('api_key', None)
         temp['tenant'] = cred['project_id']
         temp.pop('project_id', None)
-        print temp
         return ksclient.Client(**temp)
     
     def get_nova_client(self, cred):
@@ -85,7 +84,7 @@ class VM_Control(object):
             password=cred['api_key'],
             tenant_name=cred['project_id'])
         cred['tenant_id'] = RAW_TOKEN['token']['tenant']['id']
-        return noclient.Client('1.1',**cred)
+        return noclient.Client('2',**cred)
     
     def ensure_public_key(self, nova_client,
                       public_key_filename):
@@ -111,10 +110,14 @@ class VM_Control(object):
             RULE_MANAGER.create(sec_group.id,ip_protocol='tcp',from_port=80,to_port=80)
             RULE_MANAGER.create(sec_group.id,ip_protocol='icmp',from_port=-1,to_port=-1)
         return sec_group
+     
+    def get_current_userid(self):
+        return self.KEYSTONE_CONN.user_id
         
+    
     def create_vm(self,
               vm_name='TestVM',
-              image_name='Ubuntu 12.04 LTS',
+              image_name='ubuntu_cdn_14_04_2',
               flavor_name='m1.small',
               network_label=u'zhaw-net',
               sec_group='default',
@@ -145,6 +148,14 @@ class VM_Control(object):
         vm_id, name, status = self.ensure_vm_active(vm_name)
         return vm_id, name, status
     
+    def find_vms(self, userid='', status='ACTIVE'):
+        VM_MANAGER = self.NOVA_CONN.servers        
+        if not (VM_MANAGER.findall(user_id=userid)):
+            return []
+        else:
+            vm_list = [vm for vm in VM_MANAGER.findall(user_id=userid) if vm.status==status]           
+            return vm_list
+    
     def ensure_vm_active(self, vm_name):
         VM_MANAGER = self.NOVA_CONN.servers
         vm = VM_MANAGER.findall(name=vm_name)[0]
@@ -169,7 +180,7 @@ class VM_Control(object):
     def create_vms(self, vms):
         return [self.create_vm(
                     vm_name=vm,
-                      image_name='Ubuntu 12.04 LTS',
+                      image_name='ubuntu_cdn_14_04_2',
                       flavor_name='m1.small',
                       network_label='zhaw-net',
                       sec_group=self.sec_group,
@@ -258,6 +269,29 @@ class VM_Control(object):
         floating_ip = [address for address in vm.addresses.values()[0] 
                         if address[u'OS-EXT-IPS:type']==u'floating'][0]
         return floating_ip[u'addr'] 
+    
+    def get_fixed_ip_from_floating_ip(self,
+                                      floating_ip):
+        FLOATING_IPS_MANAGER = self.NOVA_CONN.floating_ips
+        fixed = [el.fixed_ip for el in FLOATING_IPS_MANAGER.list() 
+                    if el.ip == floating_ip][0]
+        return fixed
+    
+    def get_fixed_ip(self,
+                        vm_name):
+        VM_MANAGER = self.NOVA_CONN.servers
+        vm = VM_MANAGER.findall(name=vm_name)[0]
+        floating_ip = [address for address in vm.addresses.values()[0] 
+                        if address[u'OS-EXT-IPS:type']==u'fixed'][0]
+        return floating_ip[u'addr']
+        
+    def get_fixed_ip_by_id(self,
+                        vm_id):
+        VM_MANAGER = self.NOVA_CONN.servers
+        vm = VM_MANAGER.findall(id=vm_id)[0]
+        floating_ip = [address for address in vm.addresses.values()[0] 
+                        if address[u'OS-EXT-IPS:type']==u'fixed'][0]
+        return floating_ip[u'addr'] 
 
 
 if __name__ == "__main__":       
@@ -266,6 +300,8 @@ if __name__ == "__main__":
    
     vm_control = VM_Control()
     ip_list = vm_control.get_free_floating_ips()
-    vm_control.assign_floating_ip_to_vm('vm1',ip_list)
-    ip = vm_control.get_floating_ip('vm1')
+    ip = vm_control.get_floating_ip('master')
     print ip
+    my_id = vm_control.get_current_userid()
+    active_vms = vm_control.find_vms(userid=my_id)
+    stopped_vms = vm_control.find_vms(userid=my_id,status='SHUTOFF')

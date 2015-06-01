@@ -7,17 +7,17 @@ Created on Mon Mar 02 08:59:22 2015
 
 import configparser, csv, sys, getopt
 
-from fabric.api import env, execute, task, parallel, serial
+from fabric.api import env, execute, task, parallel, serial, sudo, run
 import cuisine
 
 @task
 @parallel
 def run_python_program(program=None, param='0', sudo=False):
-    cuisine.file_ensure('/usr/bin/python')
+#    cuisine.file_ensure('/usr/bin/python')
     if sudo:
-        cuisine.sudo(('/usr/bin/python %s -n %s' % (program, param)))
+        sudo(('/usr/bin/python %s -n %s' % (program, param)))
     else:
-        cuisine.run(('/usr/bin/python %s -n %s' % (program, param)))
+        run(('/usr/bin/python %s -n %s' % (program, param)))
 
 def read_hosts_file(path):
     with open(path, 'rb') as f:

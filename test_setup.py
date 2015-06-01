@@ -111,6 +111,7 @@ def setup():
     execute(upgrade)    
     execute(install, 'python-pip')
     execute(install, 'python-dev')
+    execute(install, 'python-software-properties')
     execute(pip_install, 'dispy')
     execute(pip_install, 'ecdsa')
     execute(pip_install, 'pycrypto')

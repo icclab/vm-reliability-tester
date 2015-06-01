@@ -16,10 +16,10 @@ def collect_data():
     """
     Fabric task to collect measurement data stored in VMs.
     """
-    get('/home/ubuntu/failures.csv',
-        '/home/ubuntu/failures.csv'+"."+env.host)
-    get('/home/ubuntu/response_time.csv',
-        '/home/ubuntu/response_time.csv'+"."+env.host)  
+    get('/root/failures.csv',
+        '/root/failures.csv'+"."+env.host)
+    get('/root/response_time.csv',
+        '/root/response_time.csv'+"."+env.host)  
 
 @task
 @parallel

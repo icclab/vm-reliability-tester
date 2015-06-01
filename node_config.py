@@ -7,7 +7,7 @@ Created on Mon Mar 02 08:59:22 2015
 
 import configparser, csv
 
-from fabric.api import env, execute, task, parallel, sudo
+from fabric.api import env, execute, task, parallel, sudo, run, put
 import cuisine
 
 @task
@@ -52,8 +52,7 @@ def upload_file(remote_location, local_location, sudo=False):
     """
     Fabric task to upload a file to a VM.
     """
-    cuisine.file_upload(remote_location, local_location, sudo=sudo)
-    cuisine.file_ensure(remote_location)
+    put(remote_path=remote_location, local_path=local_location, use_sudo=sudo)
 
 @task
 @parallel
@@ -63,9 +62,10 @@ def run_python_program(program=None, sudo=False):
     """
     cuisine.file_ensure('/usr/bin/python')
     if sudo:
-        cuisine.sudo(('/usr/bin/python %s' % program))
+        sudo('/usr/bin/python %s' % program)
     else:
-        cuisine.run(('/usr/bin/python %s' % program))
+        run('/usr/bin/python %s' % program)
+
 
 def read_hosts_file(path):
     """
@@ -106,6 +106,7 @@ if __name__ == "__main__":
     env.password = ssh_password
     env.key_filename = ssh_key_filename
     env.connection_attempts = 5
+    env.warn_only=True
     
 #    execute(update)
 #    execute(upgrade)    

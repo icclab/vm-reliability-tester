@@ -24,7 +24,7 @@ def upload_file(remote_location, local_location, sudo=False):
 def collect_data_files(vm_list):
     i = 1
     for vm in vm_list:
-        get('/home/ubuntu/response_time.csv.'+vm,
+        get('/root/response_time.csv.'+vm,
             'response_time_'+str(i)+'.csv')
         i += 1
 
