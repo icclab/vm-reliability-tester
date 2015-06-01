@@ -1,6 +1,6 @@
 import os
 
-os.environ['OS_USERNAME'] = 'benn'
-os.environ['OS_PASSWORD'] = 'icclab123'
-os.environ['OS_AUTH_URL'] = 'http://lisa.cloudcomplab.ch:35357/v2.0/'
-os.environ['OS_TENANT_NAME'] = 'zhaw-users'
+os.environ['OS_USERNAME'] = '<your_os_username>'
+os.environ['OS_PASSWORD'] = '<your_os_password>
+os.environ['OS_AUTH_URL'] = '<your_os_url>'
+os.environ['OS_TENANT_NAME'] = '<your_os_tenant>'
