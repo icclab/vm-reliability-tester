@@ -5,71 +5,45 @@ Created on Mon Mar 02 08:59:22 2015
 @author: Konstantin
 """
 
-import configparser, time, os, copy, csv
+import configparser, csv
 
-from fabric.api import env, execute, task, parallel, local
-import cuisine
-
-#@task
-#@parallel
-#def update(package=None):
-#    cuisine.package_update(package)
-#    
-#@task
-#@parallel
-#def upgrade(package=None):
-#    cuisine.package_upgrade(package)
-#
-#@task
-#@parallel
-#def install(package):
-#    cuisine.package_install(package)
-#    cuisine.package_ensure(package)
-#    
-#@task
-#@parallel
-#def pip_install(package):
-#    cuisine.package_ensure('python-pip')
-#    command = str('pip install %s' % package)
-#    cuisine.sudo(command)
+from fabric.api import env, execute, task, parallel, local, sudo, run, put
 
 @task
 def clear_files(VM_list, sudo=False):
     for vm in VM_list:
         if sudo:
-            cmd = str('sudo rm -rf /home/ubuntu/response_time.csv.%s' % vm)
+            cmd = str('sudo rm -rf /root/response_time.csv.%s' % vm)
             local(cmd)
-            cmd = str('sudo rm -rf /home/ubuntu/failures.csv.%s' % vm)
+            cmd = str('sudo rm -rf /root/failures.csv.%s' % vm)
             local(cmd)
         else:
-            cmd = str('rm -rf /home/ubuntu/response_time.csv.%s' % vm)
+            cmd = str('rm -rf /root/response_time.csv.%s' % vm)
             local(cmd)
-            cmd = str('rm -rf /home/ubuntu/failures.csv.%s' % vm)
+            cmd = str('rm -rf /root/failures.csv.%s' % vm)
             local(cmd)
 
 @task
 @parallel
 def clear_file(remote_location, sudo=False):
     if sudo:
-        cuisine.sudo(('rm -f %s' % remote_location))
+        sudo('rm -f %s' % remote_location)
     else:
-        cuisine.run(('rm -f %s' % remote_location))
+        run('rm -f %s' % remote_location)
 
 
 @task
 @parallel
 def upload_file(remote_location, local_location, sudo=False):
-    cuisine.file_upload(remote_location, local_location, sudo=sudo)
-    cuisine.file_ensure(remote_location)
+    put(remote_path=remote_location, local_path=local_location, use_sudo=sudo)
 
 @task
 @parallel
 def run_python_program(program=None, sudo=False):
-    cuisine.file_ensure('/usr/bin/python')
     if sudo:
-        cuisine.sudo(('/usr/bin/python %s' % program))
+        sudo('/usr/bin/python %s' % program)
     else:
-        cuisine.run(('/usr/bin/python %s' % program))
+        run('/usr/bin/python %s' % program)
 
 def read_hosts_file(path):
     with open(path, 'rb') as f:
@@ -120,10 +94,10 @@ if __name__ == "__main__":
     
 #    execute(upload_file,'/etc/host_ips.csv','/etc/host_ips.csv',sudo=True)
     execute(clear_files, vm_list, sudo=True)    
-    execute(clear_file, '/home/ubuntu/failures.csv', sudo=True)
-    execute(clear_file, '/home/ubuntu/response_time.csv', sudo=True)    
-    execute(upload_file, '/home/ubuntu/failures.csv',
-            '/home/ubuntu/failures.csv', sudo=True)
-    execute(upload_file, '/home/ubuntu/response_time.csv',
-            '/home/ubuntu/response_time.csv', sudo=True)
-#    execute(run_python_program,program='/home/ubuntu/test_program.py')
+    execute(clear_file, '/root/failures.csv', sudo=True)
+    execute(clear_file, '/root/response_time.csv', sudo=True)    
+    execute(upload_file, '/root/failures.csv',
+            '/root/failures.csv', sudo=True)
+    execute(upload_file, '/root/response_time.csv',
+            '/root/response_time.csv', sudo=True)
+#    execute(run_python_program,program='/root/test_program.py')
